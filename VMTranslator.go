@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/TheInvader360/hack-vm-translator/generator"
 	"github.com/TheInvader360/hack-vm-translator/handler"
 	"github.com/TheInvader360/hack-vm-translator/parser"
 
@@ -31,11 +32,19 @@ func main() {
 	parser := parser.NewParser()
 	parser.Sanitize(data)
 	fmt.Println("SANITIZED:\n" + strings.Join(parser.SourceLines, "\n") + "\n----------")
-	err = parser.ParseSource()
+	commands, err := parser.ParseSource()
 	handler.FatalError(err)
 	fmt.Println("PARSED:")
-	for _, command := range parser.Commands {
+	for _, command := range commands {
 		fmt.Println(command)
+	}
+	fmt.Println("----------")
+
+	generator := generator.NewGenerator()
+	assemblyLines, err := generator.GenerateAssembly(commands)
+	fmt.Println("ASSEMBLY:")
+	for _, line := range assemblyLines {
+		fmt.Println(line)
 	}
 	fmt.Println("----------")
 

@@ -56,11 +56,11 @@ func TestParseSource(t *testing.T) {
 	for _, tc := range tests {
 		p := NewParser()
 		p.SourceLines = append(p.SourceLines, tc.sourceLine)
-		err := p.ParseSource()
-		if len(p.Commands) > 0 {
-			assert.Equal(t, tc.expectedType, p.Commands[0].Type)
-			assert.Equal(t, tc.expectedArg1, p.Commands[0].Arg1)
-			assert.Equal(t, tc.expectedArg2, p.Commands[0].Arg2)
+		commands, err := p.ParseSource()
+		if len(commands) > 0 {
+			assert.Equal(t, tc.expectedType, commands[0].Type)
+			assert.Equal(t, tc.expectedArg1, commands[0].Arg1)
+			assert.Equal(t, tc.expectedArg2, commands[0].Arg2)
 		}
 		if len(tc.expectedErrMsg) > 0 {
 			assert.EqualError(t, err, tc.expectedErrMsg)
