@@ -1,0 +1,6 @@
+// Pushes and "bitwise ands" two constants.
+// binary: 1110 & 0111 = 0110
+// decimal: 14 & 7 = 6
+push constant 14
+push constant 7
+and

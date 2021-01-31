@@ -1,0 +1,6 @@
+// Pushes and "bitwise ors" two constants.
+// binary: 1100 | 1001 = 1101
+// decimal: 12 | 9 = 13
+push constant 12
+push constant 9
+or

@@ -34,41 +34,39 @@ func (g *Generator) GenerateAssembly(commands []parser.Command) (string, error) 
 }
 
 func handleArithmetic(operation string, asm *strings.Builder) {
-	comp := ""
 	switch operation {
 	case "add":
-		comp = "M=M+D"
+		asm.WriteString("@SP\nA=M-1\nD=M\nA=A-1\nM=D+M\n@SP\nM=M-1\n\n")
 	case "sub":
-		// TODO
+		asm.WriteString("@SP\nA=M-1\nD=M\nA=A-1\nM=M-D\n@SP\nM=M-1\n\n")
 	case "neg":
-		// TODO
+		asm.WriteString("@SP\nA=M\nA=A-1\nM=-M\n\n")
 	case "eq":
-		// TODO
+		asm.WriteString(fmt.Sprintf("// TODO: %s\n\n", operation)) // TODO
 	case "gt":
-		// TODO
+		asm.WriteString(fmt.Sprintf("// TODO: %s\n\n", operation)) // TODO
 	case "lt":
-		// TODO
+		asm.WriteString(fmt.Sprintf("// TODO: %s\n\n", operation)) // TODO
 	case "and":
-		// TODO
+		asm.WriteString("@SP\nA=M-1\nD=M\nA=A-1\nM=D&M\n@SP\nM=M-1\n\n")
 	case "or":
-		// TODO
+		asm.WriteString("@SP\nA=M-1\nD=M\nA=A-1\nM=D|M\n@SP\nM=M-1\n\n")
 	case "not":
-		// TODO
+		asm.WriteString("@SP\nA=M\nA=A-1\nM=!M\n\n")
 	}
-	asm.WriteString(fmt.Sprintf("@SP\nA=M-1\nD=M\nA=A-1\n%s\n@SP\nM=M-1\n\n", comp))
 }
 
 func handlePush(segment string, i int, asm *strings.Builder) {
 	switch segment {
-	case "local", "argument", "this", "that":
-		asm.WriteString(fmt.Sprintf("// TODO: push %s %d\n\n", segment, i)) // TODO
 	case "constant":
 		asm.WriteString(fmt.Sprintf("@%d\nD=A\n@SP\nA=M\nM=D\n@SP\nM=M+1\n\n", i))
-	case "static":
+	case "local", "argument", "this", "that":
+		asm.WriteString(fmt.Sprintf("// TODO: push %s %d\n\n", segment, i)) // TODO
+	case "pointer":
 		asm.WriteString(fmt.Sprintf("// TODO: push %s %d\n\n", segment, i)) // TODO
 	case "temp":
 		asm.WriteString(fmt.Sprintf("// TODO: push %s %d\n\n", segment, i)) // TODO
-	case "pointer":
+	case "static":
 		asm.WriteString(fmt.Sprintf("// TODO: push %s %d\n\n", segment, i)) // TODO
 	}
 }
@@ -77,11 +75,11 @@ func handlePop(segment string, i int, asm *strings.Builder) {
 	switch segment {
 	case "local", "argument", "this", "that":
 		asm.WriteString(fmt.Sprintf("// TODO: pop %s %d\n\n", segment, i)) // TODO
-	case "static":
+	case "pointer":
 		asm.WriteString(fmt.Sprintf("// TODO: pop %s %d\n\n", segment, i)) // TODO
 	case "temp":
 		asm.WriteString(fmt.Sprintf("// TODO: pop %s %d\n\n", segment, i)) // TODO
-	case "pointer":
+	case "static":
 		asm.WriteString(fmt.Sprintf("// TODO: pop %s %d\n\n", segment, i)) // TODO
 	}
 }

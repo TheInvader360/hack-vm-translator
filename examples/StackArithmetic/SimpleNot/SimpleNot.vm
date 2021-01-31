@@ -1,0 +1,5 @@
+// Pushes and "bitwise nots" a constant.
+// binary: 0000000000001010 = 1111111111110101
+// decimal: !10 = -11
+push constant 10
+not
