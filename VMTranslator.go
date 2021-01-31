@@ -26,11 +26,18 @@ func main() {
 
 	data, err := ioutil.ReadFile(inputFilename)
 	handler.FatalError(errors.Wrap(err, fmt.Sprintf("Can't read file: %s", inputFilename)))
-	fmt.Println(inputFilename + ":\n\n" + string(data) + "\n----------")
+	fmt.Println("SOURCE:\n" + string(data) + "\n----------")
 
 	parser := parser.NewParser()
 	parser.Sanitize(data)
-	fmt.Println("Sanitized:\n\n" + strings.Join(parser.SourceLines, "\n") + "\n----------")
+	fmt.Println("SANITIZED:\n" + strings.Join(parser.SourceLines, "\n") + "\n----------")
+	err = parser.ParseSource()
+	handler.FatalError(err)
+	fmt.Println("PARSED:")
+	for _, command := range parser.Commands {
+		fmt.Println(command)
+	}
+	fmt.Println("----------")
 
 	outputFilename := strings.Replace(inputFilename, ".vm", ".asm", 1)
 	output := []byte("lines\nof\ncode\n")
