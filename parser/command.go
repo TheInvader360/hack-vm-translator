@@ -25,14 +25,15 @@ const (
 
 // Command - struct
 type Command struct {
-	Type CommandType
-	Arg1 string
-	Arg2 int
+	Type   CommandType
+	Arg1   string
+	Arg2   int
+	Source string
 }
 
 // String representation of Command struct
 func (c Command) String() string {
-	return fmt.Sprintf("%v %s %d", c.Type, c.Arg1, c.Arg2)
+	return fmt.Sprintf("%v %s %d (%s)", c.Type, c.Arg1, c.Arg2, c.Source)
 }
 
 // Returns a constant representing the type of the current command

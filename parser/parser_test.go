@@ -9,8 +9,8 @@ import (
 )
 
 func TestCommandStringer(t *testing.T) {
-	c := Command{Type: CmdPush, Arg1: "constant", Arg2: 10}
-	assert.Equal(t, "1 constant 10", fmt.Sprint(c))
+	c := Command{Type: CmdPush, Arg1: "constant", Arg2: 10, Source: "push constant 10"}
+	assert.Equal(t, "1 constant 10 (push constant 10)", fmt.Sprint(c))
 }
 
 func TestSanitize(t *testing.T) {
@@ -61,6 +61,7 @@ func TestParseSource(t *testing.T) {
 			assert.Equal(t, tc.expectedType, commands[0].Type)
 			assert.Equal(t, tc.expectedArg1, commands[0].Arg1)
 			assert.Equal(t, tc.expectedArg2, commands[0].Arg2)
+			assert.Equal(t, tc.sourceLine, commands[0].Source)
 		}
 		if len(tc.expectedErrMsg) > 0 {
 			assert.EqualError(t, err, tc.expectedErrMsg)

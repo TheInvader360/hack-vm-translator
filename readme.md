@@ -12,8 +12,7 @@ cd hack-vm-translator
 Then:
 
 ```bash
-go run VMTranslator.go examples/BasicTest/BasicTest.vm
+go run VMTranslator.go examples/StackArithmetic/SimpleAdd/SimpleAdd.vm
 ```
 
-The translated program is exported to the source directory with the same base filename but a .asm extension (so the given example would generate examples/BasicTest/BasicTest.asm)
-
+The translated program is exported to the source directory with the same base filename but a .asm extension (so the given example would generate examples/StackArithmetic/SimpleAdd/SimpleAdd.asm)

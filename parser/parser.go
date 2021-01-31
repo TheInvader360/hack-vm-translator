@@ -42,7 +42,7 @@ func (p *Parser) ParseSource() ([]Command, error) {
 		if err != nil {
 			return nil, errors.Wrap(err, fmt.Sprintf("Command type lookup failed at line %d (%s)", i+1, line))
 		}
-		command := Command{Type: cmdType}
+		command := Command{Type: cmdType, Source: line}
 
 		// first arg - command itself if arithmetic, not set if return
 		if command.Type == CmdArithmetic {

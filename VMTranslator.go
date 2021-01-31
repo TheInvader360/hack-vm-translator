@@ -27,29 +27,18 @@ func main() {
 
 	data, err := ioutil.ReadFile(inputFilename)
 	handler.FatalError(errors.Wrap(err, fmt.Sprintf("Can't read file: %s", inputFilename)))
-	fmt.Println("SOURCE:\n" + string(data) + "\n----------")
 
 	parser := parser.NewParser()
 	parser.Sanitize(data)
-	fmt.Println("SANITIZED:\n" + strings.Join(parser.SourceLines, "\n") + "\n----------")
 	commands, err := parser.ParseSource()
 	handler.FatalError(err)
-	fmt.Println("PARSED:")
-	for _, command := range commands {
-		fmt.Println(command)
-	}
-	fmt.Println("----------")
 
 	generator := generator.NewGenerator()
-	assemblyLines, err := generator.GenerateAssembly(commands)
-	fmt.Println("ASSEMBLY:")
-	for _, line := range assemblyLines {
-		fmt.Println(line)
-	}
-	fmt.Println("----------")
+	asm, err := generator.GenerateAssembly(commands)
+	fmt.Println(asm)
 
 	outputFilename := strings.Replace(inputFilename, ".vm", ".asm", 1)
-	output := []byte("lines\nof\ncode\n")
+	output := []byte(asm)
 	err = ioutil.WriteFile(outputFilename, output, 0777)
 	handler.FatalError(errors.Wrap(err, fmt.Sprintf("Can't write file: %s", outputFilename)))
 }
