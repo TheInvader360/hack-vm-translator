@@ -9,6 +9,7 @@ import (
 
 // Generator - struct
 type Generator struct {
+	labelCount int
 }
 
 // NewGenerator - returns a pointer to new generator
@@ -23,7 +24,7 @@ func (g *Generator) GenerateAssembly(commands []parser.Command) (string, error) 
 		asm.WriteString(fmt.Sprintf("// %s\n", command.Source))
 		switch command.Type {
 		case parser.CmdArithmetic:
-			handleArithmetic(command.Arg1, &asm)
+			g.handleArithmetic(command.Arg1, &asm)
 		case parser.CmdPush:
 			handlePush(command.Arg1, command.Arg2, &asm)
 		case parser.CmdPop:
@@ -33,7 +34,7 @@ func (g *Generator) GenerateAssembly(commands []parser.Command) (string, error) 
 	return asm.String(), nil
 }
 
-func handleArithmetic(operation string, asm *strings.Builder) {
+func (g *Generator) handleArithmetic(operation string, asm *strings.Builder) {
 	switch operation {
 	case "add":
 		asm.WriteString("@SP\nA=M-1\nD=M\nA=A-1\nM=D+M\n@SP\nM=M-1\n\n")
@@ -42,11 +43,14 @@ func handleArithmetic(operation string, asm *strings.Builder) {
 	case "neg":
 		asm.WriteString("@SP\nA=M\nA=A-1\nM=-M\n\n")
 	case "eq":
-		asm.WriteString(fmt.Sprintf("// TODO: %s\n\n", operation)) // TODO
+		asm.WriteString(fmt.Sprintf("@SP\nA=M-1\nD=M\nA=A-1\nD=M-D\n@TRUE%[1]d\nD;JEQ\n@SP\nA=M-1\nA=A-1\nM=0\n@CONT%[1]d\n0;JMP\n(TRUE%[1]d)\n@SP\nA=M-1\nA=A-1\nM=-1\n(CONT%[1]d)\n@SP\nM=M-1\n\n", g.labelCount))
+		g.labelCount++
 	case "gt":
-		asm.WriteString(fmt.Sprintf("// TODO: %s\n\n", operation)) // TODO
+		asm.WriteString(fmt.Sprintf("@SP\nA=M-1\nD=M\nA=A-1\nD=M-D\n@TRUE%[1]d\nD;JGT\n@SP\nA=M-1\nA=A-1\nM=0\n@CONT%[1]d\n0;JMP\n(TRUE%[1]d)\n@SP\nA=M-1\nA=A-1\nM=-1\n(CONT%[1]d)\n@SP\nM=M-1\n\n", g.labelCount))
+		g.labelCount++
 	case "lt":
-		asm.WriteString(fmt.Sprintf("// TODO: %s\n\n", operation)) // TODO
+		asm.WriteString(fmt.Sprintf("@SP\nA=M-1\nD=M\nA=A-1\nD=M-D\n@TRUE%[1]d\nD;JLT\n@SP\nA=M-1\nA=A-1\nM=0\n@CONT%[1]d\n0;JMP\n(TRUE%[1]d)\n@SP\nA=M-1\nA=A-1\nM=-1\n(CONT%[1]d)\n@SP\nM=M-1\n\n", g.labelCount))
+		g.labelCount++
 	case "and":
 		asm.WriteString("@SP\nA=M-1\nD=M\nA=A-1\nM=D&M\n@SP\nM=M-1\n\n")
 	case "or":

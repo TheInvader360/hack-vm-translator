@@ -20,9 +20,9 @@ func TestGenerateAssembly(t *testing.T) {
 		{commandType: parser.CmdArithmetic, commandArg1: "add", commandArg2: 0, commandSource: "add", expectedAsm: "// add\n@SP\nA=M-1\nD=M\nA=A-1\nM=D+M\n@SP\nM=M-1\n\n", expectedErrMsg: ""},
 		{commandType: parser.CmdArithmetic, commandArg1: "sub", commandArg2: 0, commandSource: "sub", expectedAsm: "// sub\n@SP\nA=M-1\nD=M\nA=A-1\nM=M-D\n@SP\nM=M-1\n\n", expectedErrMsg: ""},
 		{commandType: parser.CmdArithmetic, commandArg1: "neg", commandArg2: 0, commandSource: "neg", expectedAsm: "// neg\n@SP\nA=M\nA=A-1\nM=-M\n\n", expectedErrMsg: ""},
-		//TODO eq
-		//TODO gt
-		//TODO lt
+		{commandType: parser.CmdArithmetic, commandArg1: "eq", commandArg2: 0, commandSource: "eq", expectedAsm: "// eq\n@SP\nA=M-1\nD=M\nA=A-1\nD=M-D\n@TRUE0\nD;JEQ\n@SP\nA=M-1\nA=A-1\nM=0\n@CONT0\n0;JMP\n(TRUE0)\n@SP\nA=M-1\nA=A-1\nM=-1\n(CONT0)\n@SP\nM=M-1\n\n", expectedErrMsg: ""},
+		{commandType: parser.CmdArithmetic, commandArg1: "gt", commandArg2: 0, commandSource: "gt", expectedAsm: "// gt\n@SP\nA=M-1\nD=M\nA=A-1\nD=M-D\n@TRUE0\nD;JGT\n@SP\nA=M-1\nA=A-1\nM=0\n@CONT0\n0;JMP\n(TRUE0)\n@SP\nA=M-1\nA=A-1\nM=-1\n(CONT0)\n@SP\nM=M-1\n\n", expectedErrMsg: ""},
+		{commandType: parser.CmdArithmetic, commandArg1: "lt", commandArg2: 0, commandSource: "lt", expectedAsm: "// lt\n@SP\nA=M-1\nD=M\nA=A-1\nD=M-D\n@TRUE0\nD;JLT\n@SP\nA=M-1\nA=A-1\nM=0\n@CONT0\n0;JMP\n(TRUE0)\n@SP\nA=M-1\nA=A-1\nM=-1\n(CONT0)\n@SP\nM=M-1\n\n", expectedErrMsg: ""},
 		{commandType: parser.CmdArithmetic, commandArg1: "and", commandArg2: 0, commandSource: "and", expectedAsm: "// and\n@SP\nA=M-1\nD=M\nA=A-1\nM=D&M\n@SP\nM=M-1\n\n", expectedErrMsg: ""},
 		{commandType: parser.CmdArithmetic, commandArg1: "or", commandArg2: 0, commandSource: "or", expectedAsm: "// or\n@SP\nA=M-1\nD=M\nA=A-1\nM=D|M\n@SP\nM=M-1\n\n", expectedErrMsg: ""},
 		{commandType: parser.CmdArithmetic, commandArg1: "not", commandArg2: 0, commandSource: "not", expectedAsm: "// not\n@SP\nA=M\nA=A-1\nM=!M\n\n", expectedErrMsg: ""},

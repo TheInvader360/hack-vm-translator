@@ -37,7 +37,7 @@ M=D   // PC=12, RAM[257]=8                                : RAM[257]=8 (i.e. y=8
 @SP   // PC=13, A=0
 M=M+1 // PC=14, RAM[0]=RAM[0]+1 (i.e. RAM[0]=258)         : SP++
 
-      // add (y+x):
+      // RAM[SP-2]=RAM[SP-1]+RAM[SP-2], SP--:
 @SP   // pc=15, A=0
 A=M-1 // pc=16, A=RAM[0]-1 (i.e. A=257)
 D=M   // pc=17, D=RAM[257] (i.e. D=8)                     : D=8 (or D=y)
@@ -48,4 +48,3 @@ M=M-1 // pc=21, RAM[0]=RAM[0]-1 (i.e. RAM[0]=257)         : SP--
 ```
 
 Arrived at the desired RAM[0]=257 and RAM[256]=15 values.
-
