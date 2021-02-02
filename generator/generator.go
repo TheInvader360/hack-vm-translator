@@ -9,6 +9,7 @@ import (
 
 // Generator - struct
 type Generator struct {
+	filename   string
 	labelCount int
 }
 
@@ -18,7 +19,15 @@ func NewGenerator() *Generator {
 }
 
 // GenerateAssembly - generates assembly code lines from parsed VM commands
-func (g *Generator) GenerateAssembly(commands []parser.Command) (string, error) {
+func (g *Generator) GenerateAssembly(filename string, commands []parser.Command) string {
+	g.filename = filename
+	fmt.Println(fmt.Sprintf("Translating %s:", filename))
+	fmt.Println("------------------------------")
+	for _, command := range commands {
+		fmt.Println(command.Source)
+	}
+	fmt.Println("------------------------------")
+
 	var asm strings.Builder
 	for _, command := range commands {
 		asm.WriteString(fmt.Sprintf("// %s\n", command.Source))
@@ -26,12 +35,12 @@ func (g *Generator) GenerateAssembly(commands []parser.Command) (string, error) 
 		case parser.CmdArithmetic:
 			g.handleArithmetic(command.Arg1, &asm)
 		case parser.CmdPush:
-			handlePush(command.Arg1, command.Arg2, &asm)
+			g.handlePush(command.Arg1, command.Arg2, &asm)
 		case parser.CmdPop:
-			handlePop(command.Arg1, command.Arg2, &asm)
+			g.handlePop(command.Arg1, command.Arg2, &asm)
 		}
 	}
-	return asm.String(), nil
+	return asm.String()
 }
 
 func (g *Generator) handleArithmetic(operation string, asm *strings.Builder) {
@@ -60,30 +69,67 @@ func (g *Generator) handleArithmetic(operation string, asm *strings.Builder) {
 	}
 }
 
-func handlePush(segment string, i int, asm *strings.Builder) {
+func (g *Generator) handlePush(segment string, i int, asm *strings.Builder) {
 	switch segment {
 	case "constant":
+		// *SP=i, SP++
 		asm.WriteString(fmt.Sprintf("@%d\nD=A\n@SP\nA=M\nM=D\n@SP\nM=M+1\n\n", i))
-	case "local", "argument", "this", "that":
-		asm.WriteString(fmt.Sprintf("// TODO: push %s %d\n\n", segment, i)) // TODO
+	case "local":
+		// addr=LCL+i, *SP=*addr, SP++
+		asm.WriteString(fmt.Sprintf("@LCL\nD=M\n@%d\nA=D+A\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n\n", i))
+	case "argument":
+		// addr=ARG+i, *SP=*addr, SP++
+		asm.WriteString(fmt.Sprintf("@ARG\nD=M\n@%d\nA=D+A\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n\n", i))
+	case "this":
+		// addr=THIS+i, *SP=*addr, SP++
+		asm.WriteString(fmt.Sprintf("@THIS\nD=M\n@%d\nA=D+A\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n\n", i))
+	case "that":
+		// addr=THAT+i, *SP=*addr, SP++
+		asm.WriteString(fmt.Sprintf("@THAT\nD=M\n@%d\nA=D+A\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n\n", i))
 	case "pointer":
-		asm.WriteString(fmt.Sprintf("// TODO: push %s %d\n\n", segment, i)) // TODO
+		if i == 0 {
+			// *SP=THIS, SP++
+			asm.WriteString("@THIS\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n\n")
+		} else {
+			// *SP=THAT, SP++
+			asm.WriteString("@THAT\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n\n")
+		}
 	case "temp":
-		asm.WriteString(fmt.Sprintf("// TODO: push %s %d\n\n", segment, i)) // TODO
+		// addr=5+i, *SP=*addr, SP++
+		asm.WriteString(fmt.Sprintf("@R5\nD=A\n@%d\nA=D+A\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n\n", i))
 	case "static":
-		asm.WriteString(fmt.Sprintf("// TODO: push %s %d\n\n", segment, i)) // TODO
+		// static i in file.vm -> file.i in file.asm
+		asm.WriteString(fmt.Sprintf("@%s.%d\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n\n", g.filename, i))
 	}
 }
 
-func handlePop(segment string, i int, asm *strings.Builder) {
+func (g *Generator) handlePop(segment string, i int, asm *strings.Builder) {
 	switch segment {
-	case "local", "argument", "this", "that":
-		asm.WriteString(fmt.Sprintf("// TODO: pop %s %d\n\n", segment, i)) // TODO
+	case "local":
+		// addr=LCL+i, SP--, *addr=*SP
+		asm.WriteString(fmt.Sprintf("@LCL\nD=M\n@%d\nD=D+A\n@R13\nM=D\n@SP\nAM=M-1\nD=M\n@R13\nA=M\nM=D\n\n", i))
+	case "argument":
+		// addr=ARG+i, SP--, *addr=*SP
+		asm.WriteString(fmt.Sprintf("@ARG\nD=M\n@%d\nD=D+A\n@R13\nM=D\n@SP\nAM=M-1\nD=M\n@R13\nA=M\nM=D\n\n", i))
+	case "this":
+		// addr=THIS+i, SP--, *addr=*SP
+		asm.WriteString(fmt.Sprintf("@THIS\nD=M\n@%d\nD=D+A\n@R13\nM=D\n@SP\nAM=M-1\nD=M\n@R13\nA=M\nM=D\n\n", i))
+	case "that":
+		// addr=THAT+i, SP--, *addr=*SP
+		asm.WriteString(fmt.Sprintf("@THAT\nD=M\n@%d\nD=D+A\n@R13\nM=D\n@SP\nAM=M-1\nD=M\n@R13\nA=M\nM=D\n\n", i))
 	case "pointer":
-		asm.WriteString(fmt.Sprintf("// TODO: pop %s %d\n\n", segment, i)) // TODO
+		if i == 0 {
+			// SP--, THIS=*SP
+			asm.WriteString("@THIS\nD=A\n@R13\nM=D\n@SP\nAM=M-1\nD=M\n@R13\nA=M\nM=D\n\n")
+		} else {
+			// SP--, THAT=*SP
+			asm.WriteString("@THAT\nD=A\n@R13\nM=D\n@SP\nAM=M-1\nD=M\n@R13\nA=M\nM=D\n\n")
+		}
 	case "temp":
-		asm.WriteString(fmt.Sprintf("// TODO: pop %s %d\n\n", segment, i)) // TODO
+		// addr=5+i, SP--, *addr=*SP
+		asm.WriteString(fmt.Sprintf("@R5\nD=A\n@%d\nD=D+A\n@R13\nM=D\n@SP\nAM=M-1\nD=M\n@R13\nA=M\nM=D\n\n", i))
 	case "static":
-		asm.WriteString(fmt.Sprintf("// TODO: pop %s %d\n\n", segment, i)) // TODO
+		// static i in file.vm -> file.i in file.asm
+		asm.WriteString(fmt.Sprintf("@%s.%d\nD=A\n@R13\nM=D\n@SP\nAM=M-1\nD=M\n@R13\nA=M\nM=D\n\n", g.filename, i))
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/TheInvader360/hack-vm-translator/generator"
@@ -34,7 +35,9 @@ func main() {
 	handler.FatalError(err)
 
 	generator := generator.NewGenerator()
-	asm, err := generator.GenerateAssembly(commands)
+	baseFilename := filepath.Base(inputFilename)
+	baseFilenameNoExtension := strings.Replace(baseFilename, ".vm", "", 1)
+	asm := generator.GenerateAssembly(baseFilenameNoExtension, commands)
 	fmt.Println(asm)
 
 	outputFilename := strings.Replace(inputFilename, ".vm", ".asm", 1)
