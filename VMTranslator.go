@@ -16,32 +16,55 @@ import (
 
 func main() {
 	if len(os.Args) != 2 {
-		fmt.Println("Missing file parameter")
-		return
+		handler.FatalError(errors.New("Missing path parameter"))
 	}
-	inputFilename := os.Args[1]
+	inputFilepath := os.Args[1]
+	outputFilepath := ""
 
-	if !strings.HasSuffix(inputFilename, ".vm") {
-		fmt.Println("Expected a vm file (*.vm)")
-		os.Exit(1)
-	}
-
-	data, err := ioutil.ReadFile(inputFilename)
-	handler.FatalError(errors.Wrap(err, fmt.Sprintf("Can't read file: %s", inputFilename)))
-
-	parser := parser.NewParser()
-	parser.Sanitize(data)
-	commands, err := parser.ParseSource()
+	info, err := os.Stat(inputFilepath)
 	handler.FatalError(err)
 
-	generator := generator.NewGenerator()
-	baseFilename := filepath.Base(inputFilename)
-	baseFilenameNoExtension := strings.Replace(baseFilename, ".vm", "", 1)
-	asm := generator.GenerateAssembly(baseFilenameNoExtension, commands)
-	fmt.Println(asm)
+	if info.IsDir() {
+		outputFilename := fmt.Sprintf("%s.asm", filepath.Base(inputFilepath))
+		if strings.HasSuffix(inputFilepath, "/") {
+			inputFilepath = inputFilepath + "*"
+		} else {
+			inputFilepath = inputFilepath + "/*"
+		}
+		outputFilepath = strings.Replace(inputFilepath, "*", outputFilename, 1)
+	} else {
+		if !strings.HasSuffix(inputFilepath, ".vm") {
+			handler.FatalError(errors.New("Expected a vm file (*.vm)"))
+		}
+		outputFilepath = strings.Replace(inputFilepath, ".vm", ".asm", 1)
+	}
 
-	outputFilename := strings.Replace(inputFilename, ".vm", ".asm", 1)
+	files, err := filepath.Glob(inputFilepath)
+	handler.FatalError(err)
+
+	parser := parser.NewParser()
+	generator := generator.NewGenerator()
+	asm := ""
+
+	for _, file := range files {
+		if strings.HasSuffix(file, ".vm") {
+			data, err := ioutil.ReadFile(file)
+			handler.FatalError(errors.Wrap(err, fmt.Sprintf("Can't read file: %s", file)))
+
+			parser.Sanitize(data)
+			commands, err := parser.ParseSource()
+			handler.FatalError(err)
+
+			asm = asm + generator.GenerateAssembly(strings.Replace(filepath.Base(file), ".vm", "", 1), commands)
+			fmt.Println(asm + "------------------------------")
+		}
+	}
+
 	output := []byte(asm)
-	err = ioutil.WriteFile(outputFilename, output, 0777)
-	handler.FatalError(errors.Wrap(err, fmt.Sprintf("Can't write file: %s", outputFilename)))
+	if len(output) == 0 {
+		handler.FatalError(errors.New("Zero length output - path must contain valid vm files (*.vm)"))
+	}
+
+	err = ioutil.WriteFile(outputFilepath, output, 0777)
+	handler.FatalError(errors.Wrap(err, fmt.Sprintf("Can't write file: %s", outputFilepath)))
 }
