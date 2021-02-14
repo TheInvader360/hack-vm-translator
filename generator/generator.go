@@ -44,6 +44,10 @@ func (g *Generator) GenerateAssembly(filename string, commands []parser.Command)
 			g.handleGoto(command.Arg1, &asm)
 		case parser.CmdIf:
 			g.handleIf(command.Arg1, &asm)
+		case parser.CmdFunction:
+			g.handleFunction(command.Arg1, command.Arg2, &asm)
+		case parser.CmdReturn:
+			g.handleReturn(&asm)
 		}
 	}
 	return asm.String()
@@ -150,4 +154,16 @@ func (g *Generator) handleGoto(label string, asm *strings.Builder) {
 
 func (g *Generator) handleIf(label string, asm *strings.Builder) {
 	asm.WriteString(fmt.Sprintf("@SP\nAM=M-1\nD=M\n@%s\nD;JNE\n\n", label))
+}
+
+func (g *Generator) handleFunction(fn string, nVars int, asm *strings.Builder) {
+	asm.WriteString(fmt.Sprintf("(%s)\n@SP\nA=M\n", fn))
+	for i := 0; i < nVars; i++ {
+		asm.WriteString("M=0\nA=A+1\n")
+	}
+	asm.WriteString("D=A\n@SP\nM=D\n\n")
+}
+
+func (g *Generator) handleReturn(asm *strings.Builder) {
+	asm.WriteString("@LCL\nD=M\n@5\nA=D-A\nD=M\n@R13\nM=D\n@SP\nA=M-1\nD=M\n@ARG\nA=M\nM=D\nD=A+1\n@SP\nM=D\n@LCL\nAM=M-1\nD=M\n@THAT\nM=D\n@LCL\nAM=M-1\nD=M\n@THIS\nM=D\n@LCL\nAM=M-1\nD=M\n@ARG\nM=D\n@LCL\nA=M-1\nD=M\n@LCL\nM=D\n@R13\nA=M\n0;JMP\n\n")
 }

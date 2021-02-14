@@ -42,6 +42,11 @@ func TestGenerateAssembly(t *testing.T) {
 		{commandType: parser.CmdPop, commandArg1: "pointer", commandArg2: 1, commandSource: "pop pointer 1", expectedAsm: "// pop pointer 1\n@THAT\nD=A\n@R13\nM=D\n@SP\nAM=M-1\nD=M\n@R13\nA=M\nM=D\n\n"},
 		{commandType: parser.CmdPop, commandArg1: "temp", commandArg2: 25, commandSource: "pop temp 25", expectedAsm: "// pop temp 25\n@R5\nD=A\n@25\nD=D+A\n@R13\nM=D\n@SP\nAM=M-1\nD=M\n@R13\nA=M\nM=D\n\n"},
 		{commandType: parser.CmdPop, commandArg1: "static", commandArg2: 26, commandSource: "pop static 26", expectedAsm: "// pop static 26\n@filename.26\nD=A\n@R13\nM=D\n@SP\nAM=M-1\nD=M\n@R13\nA=M\nM=D\n\n"},
+		{commandType: parser.CmdLabel, commandArg1: "LABEL", commandArg2: 0, commandSource: "label LABEL", expectedAsm: "// label LABEL\n(LABEL)\n\n"},
+		{commandType: parser.CmdGoto, commandArg1: "LABEL", commandArg2: 0, commandSource: "goto LABEL", expectedAsm: "// goto LABEL\n@LABEL\n0;JMP\n\n"},
+		{commandType: parser.CmdIf, commandArg1: "LABEL", commandArg2: 0, commandSource: "if-goto LABEL", expectedAsm: "// if-goto LABEL\n@SP\nAM=M-1\nD=M\n@LABEL\nD;JNE\n\n"},
+		{commandType: parser.CmdFunction, commandArg1: "fn", commandArg2: 3, commandSource: "function fn 3", expectedAsm: "// function fn 3\n(fn)\n@SP\nA=M\nM=0\nA=A+1\nM=0\nA=A+1\nM=0\nA=A+1\nD=A\n@SP\nM=D\n\n"},
+		{commandType: parser.CmdReturn, commandArg1: "", commandArg2: 0, commandSource: "return", expectedAsm: "// return\n@LCL\nD=M\n@5\nA=D-A\nD=M\n@R13\nM=D\n@SP\nA=M-1\nD=M\n@ARG\nA=M\nM=D\nD=A+1\n@SP\nM=D\n@LCL\nAM=M-1\nD=M\n@THAT\nM=D\n@LCL\nAM=M-1\nD=M\n@THIS\nM=D\n@LCL\nAM=M-1\nD=M\n@ARG\nM=D\n@LCL\nA=M-1\nD=M\n@LCL\nM=D\n@R13\nA=M\n0;JMP\n\n"},
 	}
 	for _, tc := range tests {
 		g := NewGenerator()
