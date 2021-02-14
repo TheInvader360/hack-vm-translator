@@ -38,6 +38,12 @@ func (g *Generator) GenerateAssembly(filename string, commands []parser.Command)
 			g.handlePush(command.Arg1, command.Arg2, &asm)
 		case parser.CmdPop:
 			g.handlePop(command.Arg1, command.Arg2, &asm)
+		case parser.CmdLabel:
+			g.handleLabel(command.Arg1, &asm)
+		case parser.CmdGoto:
+			g.handleGoto(command.Arg1, &asm)
+		case parser.CmdIf:
+			g.handleIf(command.Arg1, &asm)
 		}
 	}
 	return asm.String()
@@ -132,4 +138,16 @@ func (g *Generator) handlePop(segment string, i int, asm *strings.Builder) {
 		// static i in file.vm -> file.i in file.asm
 		asm.WriteString(fmt.Sprintf("@%s.%d\nD=A\n@R13\nM=D\n@SP\nAM=M-1\nD=M\n@R13\nA=M\nM=D\n\n", g.filename, i))
 	}
+}
+
+func (g *Generator) handleLabel(label string, asm *strings.Builder) {
+	asm.WriteString(fmt.Sprintf("(%s)\n\n", label))
+}
+
+func (g *Generator) handleGoto(label string, asm *strings.Builder) {
+	asm.WriteString(fmt.Sprintf("@%s\n0;JMP\n\n", label))
+}
+
+func (g *Generator) handleIf(label string, asm *strings.Builder) {
+	asm.WriteString(fmt.Sprintf("@SP\nAM=M-1\nD=M\n@%s\nD;JNE\n\n", label))
 }
