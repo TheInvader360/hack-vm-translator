@@ -42,23 +42,24 @@ func main() {
 	files, err := filepath.Glob(inputFilepath)
 	handler.FatalError(err)
 
-	parser := parser.NewParser()
 	generator := generator.NewGenerator()
 	asm := ""
 
+	fmt.Println("------------------------------")
 	for _, file := range files {
 		if strings.HasSuffix(file, ".vm") {
 			data, err := ioutil.ReadFile(file)
 			handler.FatalError(errors.Wrap(err, fmt.Sprintf("Can't read file: %s", file)))
 
+			parser := parser.NewParser()
 			parser.Sanitize(data)
 			commands, err := parser.ParseSource()
 			handler.FatalError(err)
 
 			asm = asm + generator.GenerateAssembly(strings.Replace(filepath.Base(file), ".vm", "", 1), commands)
-			fmt.Println(asm + "------------------------------")
 		}
 	}
+	fmt.Print(asm)
 
 	output := []byte(asm)
 	if len(output) == 0 {

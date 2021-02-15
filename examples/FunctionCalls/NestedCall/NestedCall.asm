@@ -117,10 +117,10 @@ A=M
 M=D
 
 // label LOOP
-(LOOP)
+(Sys.init$LOOP)
 
 // goto LOOP
-@LOOP
+@Sys.init$LOOP
 0;JMP
 
 // function Sys.main 5

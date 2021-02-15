@@ -9,8 +9,9 @@ import (
 
 // Generator - struct
 type Generator struct {
-	filename   string
-	labelCount int
+	filename        string
+	labelCount      int
+	currentFunction string
 }
 
 // NewGenerator - returns a pointer to new generator
@@ -147,18 +148,19 @@ func (g *Generator) handlePop(segment string, i int, asm *strings.Builder) {
 }
 
 func (g *Generator) handleLabel(label string, asm *strings.Builder) {
-	asm.WriteString(fmt.Sprintf("(%s)\n\n", label))
+	asm.WriteString(fmt.Sprintf("(%s$%s)\n\n", g.currentFunction, label))
 }
 
 func (g *Generator) handleGoto(label string, asm *strings.Builder) {
-	asm.WriteString(fmt.Sprintf("@%s\n0;JMP\n\n", label))
+	asm.WriteString(fmt.Sprintf("@%s$%s\n0;JMP\n\n", g.currentFunction, label))
 }
 
 func (g *Generator) handleIf(label string, asm *strings.Builder) {
-	asm.WriteString(fmt.Sprintf("@SP\nAM=M-1\nD=M\n@%s\nD;JNE\n\n", label))
+	asm.WriteString(fmt.Sprintf("@SP\nAM=M-1\nD=M\n@%s$%s\nD;JNE\n\n", g.currentFunction, label))
 }
 
 func (g *Generator) handleFunction(fn string, nVars int, asm *strings.Builder) {
+	g.currentFunction = fn
 	asm.WriteString(fmt.Sprintf("(%s)\n@SP\nA=M\n", fn))
 	for i := 0; i < nVars; i++ {
 		asm.WriteString("M=0\nA=A+1\n")
