@@ -47,6 +47,7 @@ func TestGenerateAssembly(t *testing.T) {
 		{commandType: parser.CmdIf, commandArg1: "LABEL", commandArg2: 0, commandSource: "if-goto LABEL", expectedAsm: "// if-goto LABEL\n@SP\nAM=M-1\nD=M\n@LABEL\nD;JNE\n\n"},
 		{commandType: parser.CmdFunction, commandArg1: "fn", commandArg2: 3, commandSource: "function fn 3", expectedAsm: "// function fn 3\n(fn)\n@SP\nA=M\nM=0\nA=A+1\nM=0\nA=A+1\nM=0\nA=A+1\nD=A\n@SP\nM=D\n\n"},
 		{commandType: parser.CmdReturn, commandArg1: "", commandArg2: 0, commandSource: "return", expectedAsm: "// return\n@LCL\nD=M\n@5\nA=D-A\nD=M\n@R13\nM=D\n@SP\nA=M-1\nD=M\n@ARG\nA=M\nM=D\nD=A+1\n@SP\nM=D\n@LCL\nAM=M-1\nD=M\n@THAT\nM=D\n@LCL\nAM=M-1\nD=M\n@THIS\nM=D\n@LCL\nAM=M-1\nD=M\n@ARG\nM=D\n@LCL\nA=M-1\nD=M\n@LCL\nM=D\n@R13\nA=M\n0;JMP\n\n"},
+		{commandType: parser.CmdCall, commandArg1: "fn", commandArg2: 2, commandSource: "call fn 2", expectedAsm: "// call fn 2\n@SP\nD=M\n@R13\nM=D\n@ret0\nD=A\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@LCL\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@ARG\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@THIS\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@THAT\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@R13\nD=M\n@2\nD=D-A\n@ARG\nM=D\n@SP\nD=M\n@LCL\nM=D\n@fn\n0;JMP\n(ret0)\n\n"},
 	}
 	for _, tc := range tests {
 		g := NewGenerator()

@@ -48,6 +48,8 @@ func (g *Generator) GenerateAssembly(filename string, commands []parser.Command)
 			g.handleFunction(command.Arg1, command.Arg2, &asm)
 		case parser.CmdReturn:
 			g.handleReturn(&asm)
+		case parser.CmdCall:
+			g.handleCall(command.Arg1, command.Arg2, &asm)
 		}
 	}
 	return asm.String()
@@ -166,4 +168,9 @@ func (g *Generator) handleFunction(fn string, nVars int, asm *strings.Builder) {
 
 func (g *Generator) handleReturn(asm *strings.Builder) {
 	asm.WriteString("@LCL\nD=M\n@5\nA=D-A\nD=M\n@R13\nM=D\n@SP\nA=M-1\nD=M\n@ARG\nA=M\nM=D\nD=A+1\n@SP\nM=D\n@LCL\nAM=M-1\nD=M\n@THAT\nM=D\n@LCL\nAM=M-1\nD=M\n@THIS\nM=D\n@LCL\nAM=M-1\nD=M\n@ARG\nM=D\n@LCL\nA=M-1\nD=M\n@LCL\nM=D\n@R13\nA=M\n0;JMP\n\n")
+}
+
+func (g *Generator) handleCall(fn string, nVars int, asm *strings.Builder) {
+	asm.WriteString(fmt.Sprintf("@SP\nD=M\n@R13\nM=D\n@ret%d\nD=A\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@LCL\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@ARG\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@THIS\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@THAT\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@R13\nD=M\n@%d\nD=D-A\n@ARG\nM=D\n@SP\nD=M\n@LCL\nM=D\n@%s\n0;JMP\n(ret%d)\n\n", g.labelCount, nVars, fn, g.labelCount))
+	g.labelCount++
 }
