@@ -19,6 +19,14 @@ func NewGenerator() *Generator {
 	return &Generator{}
 }
 
+// Bootstrap - sets stack pointer to 256 then calls Sys.init
+func (g *Generator) Bootstrap() string {
+	var bootstrapBuilder strings.Builder
+	bootstrapBuilder.WriteString("\n// Bootstrap...\n@256\nD=A\n@SP\nM=D\n")
+	g.handleCall("Sys.init", 0, &bootstrapBuilder)
+	return bootstrapBuilder.String()
+}
+
 // GenerateAssembly - generates assembly code lines from parsed VM commands
 func (g *Generator) GenerateAssembly(filename string, commands []parser.Command) string {
 	g.filename = filename

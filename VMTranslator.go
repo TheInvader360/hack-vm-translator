@@ -43,7 +43,7 @@ func main() {
 	handler.FatalError(err)
 
 	generator := generator.NewGenerator()
-	asm := ""
+	asm := generator.Bootstrap()
 
 	fmt.Println("------------------------------")
 	for _, file := range files {

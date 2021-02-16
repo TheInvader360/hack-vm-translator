@@ -7,6 +7,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestBootstrap(t *testing.T) {
+	g := NewGenerator()
+	bootstrap := g.Bootstrap()
+	assert.Equal(t, "\n// Bootstrap...\n@256\nD=A\n@SP\nM=D\n@SP\nD=M\n@R13\nM=D\n@ret0\nD=A\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@LCL\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@ARG\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@THIS\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@THAT\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@R13\nD=M\n@0\nD=D-A\n@ARG\nM=D\n@SP\nD=M\n@LCL\nM=D\n@Sys.init\n0;JMP\n(ret0)\n\n", bootstrap)
+}
+
 func TestGenerateAssembly(t *testing.T) {
 	type test struct {
 		commandType   parser.CommandType
