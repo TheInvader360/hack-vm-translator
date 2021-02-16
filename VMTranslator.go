@@ -43,7 +43,12 @@ func main() {
 	handler.FatalError(err)
 
 	generator := generator.NewGenerator()
-	asm := generator.Bootstrap()
+	asm := ""
+	for _, file := range files {
+		if strings.HasSuffix(file, "Sys.vm") {
+			asm = generator.Bootstrap()
+		}
+	}
 
 	fmt.Println("------------------------------")
 	for _, file := range files {

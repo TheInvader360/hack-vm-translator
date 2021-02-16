@@ -1,3 +1,62 @@
+
+// Bootstrap...
+@256
+D=A
+@SP
+M=D
+@SP
+D=M
+@R13
+M=D
+@ret0
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@LCL
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@ARG
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@THIS
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@THAT
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@R13
+D=M
+@0
+D=D-A
+@ARG
+M=D
+@SP
+D=M
+@LCL
+M=D
+@Sys.init
+0;JMP
+(ret0)
+
 // function Sys.init 0
 (Sys.init)
 @SP
@@ -53,7 +112,7 @@ M=D
 D=M
 @R13
 M=D
-@ret0
+@ret1
 D=A
 @SP
 A=M
@@ -100,7 +159,7 @@ D=M
 M=D
 @Sys.main
 0;JMP
-(ret0)
+(ret1)
 
 // pop temp 1
 @R5
@@ -266,7 +325,7 @@ M=M+1
 D=M
 @R13
 M=D
-@ret1
+@ret2
 D=A
 @SP
 A=M
@@ -313,7 +372,7 @@ D=M
 M=D
 @Sys.add12
 0;JMP
-(ret1)
+(ret2)
 
 // pop temp 0
 @R5
